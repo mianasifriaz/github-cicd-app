@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Actions CI/CD Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      max-width: 800px;
+      width: 100%;
+      padding: 40px;
+    }
+    h1 { color: #333; margin-bottom: 10px; text-align: center; }
+    .subtitle { color: #666; text-align: center; margin-bottom: 30px; font-size: 14px; }
+    .status { background: #f0f9ff; border-left: 4px solid #0284c7; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+    .status-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e0e7ff; }
+    .status-item:last-child { border-bottom: none; }
+    .status-label { font-weight: 600; color: #333; }
+    .status-value { color: #666; font-family: monospace; }
+    .users-section { margin-top: 30px; }
+    .users-section h2 { color: #333; margin-bottom: 15px; font-size: 18px; }
+    .user-list { list-style: none; }
+    .user-item { background: #f8f9fa; padding: 12px; margin-bottom: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+    .user-name { font-weight: 600; color: #333; }
+    .user-role { background: #667eea; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 GitHub Actions CI/CD Demo</h1>
+    <p class="subtitle">Real-time Deployment Pipeline</p>
+    
+    <div class="status">
+      <div class="status-item">
+        <span class="status-label">Status</span>
+        <span class="status-value" id="status">Loading...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Environment</span>
+        <span class="status-value" id="environment">Loading...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Version</span>
+        <span class="status-value" id="version">Loading...</span>
+      </div>
+    </div>
+
+    <div class="users-section">
+      <h2>Users</h2>
+      <ul class="user-list" id="userList">
+        <li style="padding: 12px; color: #999;">Loading...</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    async function fetchData() {
+      try {
+        const healthRes = await fetch('/health');
+        const healthData = await healthRes.json();
+        document.getElementById('status').textContent = healthData.status;
+        document.getElementById('environment').textContent = healthData.environment;
+        document.getElementById('version').textContent = 'v' + healthData.version;
+
+        const usersRes = await fetch('/api/users');
+        const users = await usersRes.json();
+        document.getElementById('userList').innerHTML = users.map(user => `
+          <li class="user-item">
+            <span class="user-name">${user.name}</span>
+            <span class="user-role">${user.role}</span>
+          </li>
+        `).join('');
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    fetchData();
+    setInterval(fetchData, 30000);
+  </script>
+</body>
+</html>
